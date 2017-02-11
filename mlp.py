@@ -51,6 +51,11 @@ del train_no_char10['char_10_x']
 ##END DATA PREPROCESSING
 ###
 
+#--------------------------------
+#training set is train_no_char10    //X
+#target labels is list(train_target.values.ravel())  //Y
+#-------------------------------
+
 ##Training time
 ##SAMPLE TRAINING WITH Multi Layer Perceptron
 #init mlpclassifier
