@@ -5,11 +5,21 @@ from sklearn.decomposition import TruncatedSVD,NMF,PCA,FactorAnalysis
 from sklearn.feature_selection import SelectFromModel,SelectPercentile,f_classif
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 
 # select classifier
 ## 0 for MLP
 ## 1 for Adaboost
+## 2 for GradientBoost
 classify_with = 1
+
+#Classifier Settings
+## No. of estimators for Gradient Boost
+no_estimators_gb = 30
+## No. of estimators for Adaboost
+no_est_adaboost = 30
+## No. of MLP Hidden Layers
+no_hidden_layers = 30
 
 # Load Data
 
@@ -75,7 +85,7 @@ train_target = train_labels.rename(None).to_frame() #labels
 if classify_with == 0:
     print("Classifying with MLP")
     # Train
-    no_hid_lyr = 30
+    no_hid_lyr = no_hidden_layers
     clf3 = MLPClassifier(solver='adam', alpha=1e-5, hidden_layer_sizes=(no_hid_lyr,), random_state=1)
     clf3.fit(train, list(train_target.values.ravel()))
     print("Training completed.\nGenerating predictions...")
@@ -91,7 +101,7 @@ if classify_with == 0:
 
 elif classify_with == 1:
     print("Classifying with Adaboost.")
-    no_estimators = 30
+    no_estimators = no_est_adaboost
     bdt = AdaBoostClassifier(
         DecisionTreeClassifier(max_depth=1),
         algorithm="SAMME",
@@ -107,3 +117,18 @@ elif classify_with == 1:
     print("Writing submission file.")
     submission.to_csv('submission_adaboost_outcome_%d.csv'%(no_estimators),index=False)
     print("Submission file written to submission_adaboost_outcome_%d.csv"%(no_estimators))
+
+elif classify_with == 2:
+    gbc =  GradientBoostingClassifier(n_estimators=no_estimators_gb)
+    gbc.fit(train, list(train_target.values.ravel()))
+    columns = train.columns.tolist()
+    X_t10 = test[columns].values
+    outcome = gbc.predict(X_t10)
+    submission = pd.DataFrame()
+    submission['activity_id'] = test['activity_id']
+    submission['outcome'] = outcome
+    print("Writing submission file.")
+    submission.to_csv('submission_gboost_outcome_%d.csv'%(no_estimators_gb),index=False)
+    print("Submission file written to submission_gboost_outcome_%d.csv" %(no_estimators_gb), index=False)
+else:
+    print("No classifier specified.")
