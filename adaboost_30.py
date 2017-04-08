@@ -23,7 +23,7 @@ no_est_adaboost = 30
 ## No. of MLP Hidden Layers
 no_hidden_layers = 30
 ## No. of estimators for Random Forest
-no_est_rf = 30
+no_est_rf = 100
 
 # Load Data
 
