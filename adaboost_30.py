@@ -6,12 +6,14 @@ from sklearn.feature_selection import SelectFromModel,SelectPercentile,f_classif
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier
 
 # select classifier
 ## 0 for MLP
 ## 1 for Adaboost
 ## 2 for GradientBoost
-classify_with = 1
+## 3 for RandomForest
+classify_with = 3
 
 #Classifier Settings
 ## No. of estimators for Gradient Boost
@@ -20,6 +22,8 @@ no_estimators_gb = 30
 no_est_adaboost = 30
 ## No. of MLP Hidden Layers
 no_hidden_layers = 30
+## No. of estimators for Random Forest
+no_est_rf = 30
 
 # Load Data
 
@@ -130,5 +134,17 @@ elif classify_with == 2:
     print("Writing submission file.")
     submission.to_csv('submission_gboost_outcome_%d.csv'%(no_estimators_gb),index=False)
     print("Submission file written to submission_gboost_outcome_%d.csv" %(no_estimators_gb), index=False)
+elif classify_with == 3:
+    rfc = RandomForestClassifier(n_estimators=no_est_rf)
+    rfc.fit(train, list(train_target.values.ravel()))
+    columns = train.columns.tolist()
+    X_t10 = test[columns].values
+    outcome = rfc.predict(X_t10)
+    submission = pd.DataFrame()
+    submission['activity_id'] = test['activity_id']
+    submission['outcome'] = outcome
+    print("Writing submission file.")
+    submission.to_csv('submission_rforest_outcome_%d.csv'%(no_est_rf),index=False)
+    print("Submission file written to submission_rforest_outcome_%d.csv" %(no_est_rf), index=False)
 else:
     print("No classifier specified.")
